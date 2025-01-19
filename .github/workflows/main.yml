@@ -25,7 +25,7 @@ jobs:
       # Export notebook
       - name: 📄 Export notebook
         run: |
-          marimo export html-wasm problems/problem-4/notebook.py -o output_dir --mode run
+          marimo export html-wasm problems/problem-4/notebook.py -o output_dir --mode run --no-show-code -o docs/
 
       # Upload Pages Artifact
       - name: 📦 Upload Pages Artifact
