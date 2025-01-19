@@ -26,16 +26,29 @@ jobs:
           python -m pip install --upgrade pip
           pip install marimo
 
-      # Create output directory and export all notebooks
+      # Export all notebooks with simplified numeric folder names
       - name: Export all notebooks
         run: |
           mkdir -p output_dir
           for dir in problems/*; do
             if [ -d "$dir" ] && [ -f "$dir/notebook.py" ]; then
-              mkdir -p "output_dir/${dir##*/}"
-              marimo export html-wasm "$dir/notebook.py" -o "output_dir/${dir##*/}" --mode run --no-show-code
+              problem_number=$(echo "$dir" | grep -o '[0-9]*')  # Extract the problem number
+              mkdir -p "output_dir/$problem_number"
+              marimo export html-wasm "$dir/notebook.py" -o "output_dir/$problem_number" --mode run --no-show-code
             fi
           done
+
+      # Create root index.html with links to numbered problem folders
+      - name: Create root index.html
+        run: |
+          echo "<html><body><h1>Notebook Index</h1><ul>" > output_dir/index.html
+          for dir in output_dir/*; do
+            if [ -d "$dir" ]; then
+              problem_number=$(basename "$dir")
+              echo "<li><a href='./$problem_number/index.html'>Problem $problem_number</a></li>" >> output_dir/index.html
+            fi
+          done
+          echo "</ul></body></html>" >> output_dir/index.html
 
       # Debug: List output directory contents
       - name: Debug output directory
