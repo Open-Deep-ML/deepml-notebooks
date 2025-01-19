@@ -1,9 +1,9 @@
-name: Deploy Notebook to GitHub Pages
+name: Deploy Notebooks to GitHub Pages
 
 on:
   push:
     branches:
-      - main
+      - main  # Trigger the workflow on pushes to the main branch
 
 jobs:
   build:
@@ -14,27 +14,39 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Install dependencies if required
+      # Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      # Install dependencies
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install marimo
 
-      # Export notebook
-      - name: 📄 Export notebook
+      # Create output directory and export all notebooks
+      - name: Export all notebooks
         run: |
-          mkdir -p output  # Ensure the directory exists
-          marimo export html-wasm problems/problem-4/notebook.py -o output_dir --mode run --no-show-code -o docs/
+          mkdir -p output
+          for dir in problems/*; do
+            if [ -d "$dir" ] && [ -f "$dir/notebook.py" ]; then
+              mkdir -p "output/${dir##*/}"
+              marimo export html-wasm "$dir/notebook.py" -o "output/${dir##*/}" --mode run --no-show-code -o docs/
+            fi
+          done
 
-      # Debug Output Directory
-      - name: Debug Output Directory
+      # Debug: List output directory contents
+      - name: Debug output directory
         run: |
-          ls -la output
+          ls -R output
 
       # Upload Pages Artifact
       - name: 📦 Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: output  # Corrected to match the export command output
+          path: output
           name: github-pages
           retention-days: 1
 
@@ -56,4 +68,3 @@ jobs:
         uses: actions/deploy-pages@v4
         with:
           artifact_name: github-pages
-
