@@ -29,24 +29,24 @@ jobs:
       # Create output directory and export all notebooks
       - name: Export all notebooks
         run: |
-          mkdir -p output
+          mkdir -p output_dir
           for dir in problems/*; do
             if [ -d "$dir" ] && [ -f "$dir/notebook.py" ]; then
-              mkdir -p "output/${dir##*/}"
-              marimo export html-wasm "$dir/notebook.py" -o "output/${dir##*/}" --mode run --no-show-code -o docs/
+              mkdir -p "output_dir/${dir##*/}"
+              marimo export html-wasm "$dir/notebook.py" -o "output_dir/${dir##*/}" --mode run --no-show-code
             fi
           done
 
       # Debug: List output directory contents
       - name: Debug output directory
         run: |
-          ls -R output
+          ls -R output_dir
 
       # Upload Pages Artifact
       - name: 📦 Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: output
+          path: output_dir
           name: github-pages
           retention-days: 1
 
