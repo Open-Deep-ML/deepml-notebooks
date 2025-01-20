@@ -26,29 +26,30 @@ jobs:
           python -m pip install --upgrade pip
           pip install marimo
 
-      # Export all notebooks with simplified numeric folder names into docs
-      - name: Export all notebooks
+      # Export all notebooks in readonly mode (--mode run)
+      - name: Export all notebooks in readonly mode
         run: |
           mkdir -p docs
           for dir in problems/*; do
             if [ -d "$dir" ] && [ -f "$dir/notebook.py" ]; then
               problem_number=$(echo "$dir" | grep -o '[0-9]*')  # Extract the problem number
               mkdir -p "docs/$problem_number"
-              marimo export html-wasm "$dir/notebook.py" -o "docs/$problem_number" --mode run --no-show-code
+              marimo export html-wasm "$dir/notebook.py" --mode run --no-show-code -o "docs/$problem_number"
             fi
           done
 
-      # Set dark theme in generated index.html files
-      - name: Set dark theme
+      # Modify CSS to hide sidebar and save button
+      - name: Customize CSS for readonly pages
         run: |
-          find docs -name 'index.html' -exec sed -i 's/"theme": "light"/"theme": "dark"/g' {} +
+          find docs/assets -name "*.css" -exec sed -i 's/sidebar-visible/sidebar-hidden/g' {} +
+          find docs/assets -name "*.css" -exec sed -i 's/save-button-visible/save-button-hidden/g' {} +
 
-      # Create root index.html in docs with links to numbered problem folders
+      # Create root index.html with links to numbered problem folders
       - name: Create root index.html
         run: |
           echo "<html><body><h1>Notebook Index</h1><ul>" > docs/index.html
           for dir in docs/*; do
-            if [ -d "$dir" ]; then
+            if [ -d "$dir" ] && [[ "$dir" != "docs/assets" ]]; then
               problem_number=$(basename "$dir")
               echo "<li><a href='./$problem_number/index.html'>Problem $problem_number</a></li>" >> docs/index.html
             fi
