@@ -34,7 +34,7 @@ jobs:
             if [ -d "$dir" ] && [ -f "$dir/notebook.py" ]; then
               problem_number=$(echo "$dir" | grep -o '[0-9]*')  # Extract the problem number
               mkdir -p "output_dir/$problem_number"
-              marimo export html-wasm "$dir/notebook.py" -o "output_dir/$problem_number" --mode run --no-show-code
+              marimo export html-wasm "$dir/notebook.py" -o "output_dir/$problem_number" --mode run  --no-show-code -o docs/
             fi
           done
 
