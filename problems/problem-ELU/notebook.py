@@ -10,7 +10,7 @@
 import marimo
 
 __generated_with = "0.10.12"
-app = marimo.App()
+app = marimo.App(css_file="/Users/adityakhalkar/Library/Application Support/mtheme/themes/deepml.css")
 
 
 @app.cell(hide_code=True)
