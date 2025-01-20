@@ -26,40 +26,40 @@ jobs:
           python -m pip install --upgrade pip
           pip install marimo
 
-      # Export all notebooks with simplified numeric folder names
+      # Export all notebooks with simplified numeric folder names into docs
       - name: Export all notebooks
         run: |
-          mkdir -p output_dir
+          mkdir -p docs
           for dir in problems/*; do
             if [ -d "$dir" ] && [ -f "$dir/notebook.py" ]; then
               problem_number=$(echo "$dir" | grep -o '[0-9]*')  # Extract the problem number
-              mkdir -p "output_dir/$problem_number"
-              marimo export html-wasm "$dir/notebook.py" -o "output_dir/$problem_number" --mode run  --no-show-code -o
+              mkdir -p "docs/$problem_number"
+              marimo export html-wasm "$dir/notebook.py" -o "docs/$problem_number" --mode run --no-show-code
             fi
           done
 
-      # Create root index.html with links to numbered problem folders
+      # Create root index.html in docs with links to numbered problem folders
       - name: Create root index.html
         run: |
-          echo "<html><body><h1>Notebook Index</h1><ul>" > output_dir/index.html
-          for dir in output_dir/*; do
+          echo "<html><body><h1>Notebook Index</h1><ul>" > docs/index.html
+          for dir in docs/*; do
             if [ -d "$dir" ]; then
               problem_number=$(basename "$dir")
-              echo "<li><a href='./$problem_number/index.html'>Problem $problem_number</a></li>" >> output_dir/index.html
+              echo "<li><a href='./$problem_number/index.html'>Problem $problem_number</a></li>" >> docs/index.html
             fi
           done
-          echo "</ul></body></html>" >> output_dir/index.html
+          echo "</ul></body></html>" >> docs/index.html
 
-      # Debug: List output directory contents
-      - name: Debug output directory
+      # Debug: List docs directory contents
+      - name: Debug docs directory
         run: |
-          ls -R output_dir
+          ls -R docs
 
       # Upload Pages Artifact
       - name: 📦 Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: output_dir
+          path: docs
           name: github-pages
           retention-days: 1
 
