@@ -10,23 +10,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository
+      # 1. Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up Python environment
+      # 2. Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
 
-      # Install dependencies
+      # 3. Install dependencies (including marimo)
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install marimo
 
-      # Export all notebooks in readonly mode (--mode run)
+      # 4. Export all notebooks (readonly) to docs/...
       - name: Export all notebooks in readonly mode
         run: |
           mkdir -p docs
@@ -34,17 +34,18 @@ jobs:
             if [ -d "$dir" ] && [ -f "$dir/notebook.py" ]; then
               problem_number=$(echo "$dir" | grep -o '[0-9]*')  # Extract the problem number
               mkdir -p "docs/$problem_number"
+              # Use marimo export with --mode run (readonly) and --no-show-code
               marimo export html-wasm "$dir/notebook.py" --mode run --no-show-code -o "docs/$problem_number"
             fi
           done
 
-      # Modify CSS to hide sidebar and save button
-      - name: Customize CSS for readonly pages
+      # 5. Set theme to dark in every generated index.html
+      - name: Force dark theme
         run: |
-          find docs/assets -name "*.css" -exec sed -i 's/sidebar-visible/sidebar-hidden/g' {} +
-          find docs/assets -name "*.css" -exec sed -i 's/save-button-visible/save-button-hidden/g' {} +
+          # This replaces "theme": "light" with "theme": "dark" in all index.html files
+          find docs -type f -name "index.html" -exec sed -i 's/"theme": "light"/"theme": "dark"/g' {} +
 
-      # Create root index.html with links to numbered problem folders
+      # 6. Create root index.html linking to each problem's notebook
       - name: Create root index.html
         run: |
           echo "<html><body><h1>Notebook Index</h1><ul>" > docs/index.html
@@ -56,12 +57,12 @@ jobs:
           done
           echo "</ul></body></html>" >> docs/index.html
 
-      # Debug: List docs directory contents
+      # 7. Debug: List docs directory contents
       - name: Debug docs directory
         run: |
           ls -R docs
 
-      # Upload Pages Artifact
+      # 8. Upload Pages Artifact for deployment
       - name: 📦 Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
