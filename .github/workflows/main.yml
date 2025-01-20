@@ -38,6 +38,11 @@ jobs:
             fi
           done
 
+      # Set dark theme in generated index.html files
+      - name: Set dark theme
+        run: |
+          find docs -name 'index.html' -exec sed -i 's/"theme": "light"/"theme": "dark"/g' {} +
+
       # Create root index.html in docs with links to numbered problem folders
       - name: Create root index.html
         run: |
