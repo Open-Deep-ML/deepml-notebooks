@@ -42,10 +42,14 @@ jobs:
       # 5. Set theme to dark in every generated index.html
       - name: Force dark theme
         run: |
-          # This replaces "theme": "light" with "theme": "dark" in all index.html files
           find docs -type f -name "index.html" -exec sed -i 's/"theme": "light"/"theme": "dark"/g' {} +
 
-      # 6. Create root index.html linking to each problem's notebook
+      # 6. Inject custom JavaScript
+      - name: Inject custom JavaScript
+        run: |
+          find docs -type f -name "index.html" -exec sed -i '/<\/head>/i <script src="./assets/ConnectedDataExplorerComponent-DuJEjFFt.js"></script>' {} +
+
+      # 7. Create root index.html linking to each problem's notebook
       - name: Create root index.html
         run: |
           echo "<html><body><h1>Notebook Index</h1><ul>" > docs/index.html
@@ -57,12 +61,12 @@ jobs:
           done
           echo "</ul></body></html>" >> docs/index.html
 
-      # 7. Debug: List docs directory contents
+      # 8. Debug: List docs directory contents
       - name: Debug docs directory
         run: |
           ls -R docs
 
-      # 8. Upload Pages Artifact for deployment
+      # 9. Upload Pages Artifact for deployment
       - name: 📦 Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
