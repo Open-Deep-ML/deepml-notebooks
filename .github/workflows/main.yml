@@ -49,6 +49,10 @@ jobs:
         run: |
           find docs -type f -name "index.html" -exec sed -i '/<\/head>/i <style>#notebook-actions-dropdown { display: none; }</style>' {} +
 
+      - name: Ensure Proper Placement of Custom Code
+        run: |
+          find docs -type f -name "index.html" -exec sed -i '/\/\* END CUSTOM \*\//a <script>console.log("Custom Scripts Loaded");</script>' {} +
+
       - name: Create root index.html
         run: |
           echo "<html><body><h1>Notebook Index</h1><ul>" > docs/index.html
