@@ -38,9 +38,12 @@ jobs:
             fi
           done
 
-      - name: Force dark theme
+      - name: Adjust themes
         run: |
-          find docs -type f -name "index.html" -exec sed -i 's/"theme": "light"/"theme": "dark"/g' {} +
+          # Set dark theme for all notebooks except notebook-light
+          find docs -type f -name "index.html" ! -path "*/notebook-light/*" -exec sed -i 's/"theme": "light"/"theme": "dark"/g' {} +
+          # Ensure notebook-light remains in light theme
+          find docs/notebook-light -type f -name "index.html" -exec sed -i 's/"theme": "dark"/"theme": "light"/g' {} +
 
       - name: Inject CSS to hide notebook actions dropdown
         run: |
