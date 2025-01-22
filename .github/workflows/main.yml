@@ -51,7 +51,9 @@ jobs:
 
       - name: Ensure Proper Placement of Custom Code
         run: |
-          find docs -type f -name "index.html" -exec sed -i '/\/\* END CUSTOM \*\//a <script>console.log("Custom Scripts Loaded");</script>' {} +
+          find docs -type f -name "index.html" -exec sed -i '/<!-- END CUSTOM -->/a <script>console.log("Custom Scripts Loaded");</script>' {} +
+          # Alternatively, to inject before </body>:
+          # find docs -type f -name "index.html" -exec sed -i '/<\/body>/i <script>console.log("Custom Scripts Loaded");</script>' {} +
 
       - name: Create root index.html
         run: |
