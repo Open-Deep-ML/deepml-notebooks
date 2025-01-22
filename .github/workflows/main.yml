@@ -51,9 +51,10 @@ jobs:
 
       - name: Ensure Proper Placement of Custom Code
         run: |
+          # 1. Convert the CSS/JS comment into an HTML comment so it's not displayed
+          find docs -type f -name "index.html" -exec sed -i 's/\/\* END CUSTOM \*\//<!-- END CUSTOM -->/g' {} +
+          # 2. Inject a script right after the HTML comment
           find docs -type f -name "index.html" -exec sed -i '/<!-- END CUSTOM -->/a <script>console.log("Custom Scripts Loaded");</script>' {} +
-          # Alternatively, to inject before </body>:
-          # find docs -type f -name "index.html" -exec sed -i '/<\/body>/i <script>console.log("Custom Scripts Loaded");</script>' {} +
 
       - name: Create root index.html
         run: |
