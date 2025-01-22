@@ -38,6 +38,24 @@ jobs:
             fi
           done
 
+      - name: Adjust themes
+        run: |
+          # Set dark theme for all notebooks except notebook-light
+          find docs -type f -name "index.html" ! -path "*/notebook-light/*" -exec sed -i 's/"theme": "light"/"theme": "dark"/g' {} +
+          # Ensure notebook-light remains in light theme
+          find docs/notebook-light -type f -name "index.html" -exec sed -i 's/"theme": "dark"/"theme": "light"/g' {} +
+
+      - name: Inject CSS to hide notebook actions dropdown
+        run: |
+          find docs -type f -name "index.html" -exec sed -i '/<\/head>/i <style>#notebook-actions-dropdown { display: none; }</style>' {} +
+
+      - name: Ensure Proper Placement of Custom Code
+        run: |
+          # 1. Convert the CSS/JS comment into an HTML comment so it's not displayed
+          find docs -type f -name "index.html" -exec sed -i 's/\/\* END CUSTOM \*\//<!-- END CUSTOM -->/g' {} +
+          # 2. Inject a script right after the HTML comment
+          find docs -type f -name "index.html" -exec sed -i '/<!-- END CUSTOM -->/a <script>console.log("Custom Scripts Loaded");</script>' {} +
+
       - name: Create root index.html
         run: |
           echo "<html><body><h1>Notebook Index</h1><ul>" > docs/index.html
