@@ -23,14 +23,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install marimo
 
-      - name: Export all notebooks in readonly mode
+      - name: Prepare docs folder and copy all notebooks
         run: |
           mkdir -p docs
           for dir in problems/*; do
-            if [ -d "$dir" ] && [ -f "$dir/notebook.py" ]; then
-              problem_number=$(echo "$dir" | grep -o '[0-9]*')
-              mkdir -p "docs/$problem_number"
-              marimo export html-wasm "$dir/notebook.py" --mode run --no-show-code -o "docs/$problem_number"
+            if [ -d "$dir" ]; then
+              base_dir=$(basename "$dir")
+              mkdir -p "docs/$base_dir"
+              if [[ "$base_dir" == "notebook-light" || "$base_dir" == "notebook-dark" || "$base_dir" == problem_* ]]; then
+                cp -r "$dir/"* "docs/$base_dir/"
+              elif [ -f "$dir/notebook.py" ]; then
+                marimo export html-wasm "$dir/notebook.py" --mode run --no-show-code -o "docs/$base_dir"
+              fi
             fi
           done
 
@@ -47,8 +51,8 @@ jobs:
           echo "<html><body><h1>Notebook Index</h1><ul>" > docs/index.html
           for dir in docs/*; do
             if [ -d "$dir" ] && [[ "$dir" != "docs/assets" ]]; then
-              problem_number=$(basename "$dir")
-              echo "<li><a href='./$problem_number/index.html'>Problem $problem_number</a></li>" >> docs/index.html
+              base_dir=$(basename "$dir")
+              echo "<li><a href='./$base_dir/index.html'>$base_dir</a></li>" >> docs/index.html
             fi
           done
           echo "</ul></body></html>" >> docs/index.html
